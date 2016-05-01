@@ -1,4 +1,10 @@
 #!/bin/bash
-set -e
 
-API_TOKEN=xoxp-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXXX-XXXXXXXXXX
+export SLACK_A_API_TOKEN=xoxp-xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxx-xxxxxx
+export SLACK_B_API_TOKEN=xoxp-xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxx-xxxxxx
+
+export SLACK_A_1=random
+export SLACK_B_1=general
+
+export SLACK_A_2=hoge
+export SLACK_B_2=huga
