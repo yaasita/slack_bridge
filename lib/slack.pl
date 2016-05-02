@@ -46,14 +46,14 @@ sub ch_list {
 sub _create_status_list {
     my $self = shift;
     $self->{status}={};
+    for (ch_list($self)){
+        $self->{status}->{$_}=0;
+    }
     if ( -r "status/status.txt" ){
         open (my $in,"<", "status/status.txt") or die $!;
         close $in;
     }
     else {
-        for (ch_list($self)){
-            $self->{status}->{$_}=0;
-        }
     }
 }
 sub last_get_date {
@@ -84,6 +84,21 @@ sub _create_user_list {
         $self->{user}->{$i}=$u;
     }
     close $in;
+}
+# }}}
+# post {{{
+sub post_ch {
+    my $self = shift;
+    my %param = @_;
+    #say ch_name_to_id($self,$param{ch});
+    my $str = $param{text};
+    $str =~ s/([^ 0-9a-zA-Z])/"%".uc(unpack("H2",$1))/eg;
+    $str =~ s/ /+/g;
+    my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
+    my $ch = ch_name_to_id($self,$param{ch});
+    my $user = $param{username};
+    system ("curl -s 'https://slack.com/api/chat.postMessage?token=$token\&channel=$ch\&text=$str\&username=$user'");
+
 }
 # }}}
 
