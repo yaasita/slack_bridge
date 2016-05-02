@@ -25,3 +25,7 @@ A→Bへ連携する
     export SLACK_B_API_TOKEN=xoxp-xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxx-xxxxxx
     export SLACK_A="*"
     export SLACK_B=random
+
+# 実行
+
+    ./run.sh

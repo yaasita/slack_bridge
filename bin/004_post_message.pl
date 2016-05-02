@@ -32,7 +32,7 @@ sub post_message {
     }
     my $ch;
     {
-        if ($file =~ m#tmp/\w_history_(\w+)\.txt$#){
+        if ($file =~ m#tmp/\w_history_(.*)\.txt$#){
             $ch = $1;
         }
         else {
