@@ -42,6 +42,7 @@ sub post_message {
     for(sort {$a->{ts} <=> $b->{ts}} @{$json->{messages}}){
         my $message = $_->{text};
         my $t = localtime($_->{ts});
+        my $unix_time = $_->{ts};
 
         my $text="";
         $text .= $slack_a->id_to_user_name($_->{user}) . '@' . $ch . " (" . $t->strftime("%Y/%m/%d %H:%M:%S") . ") \n";
@@ -54,7 +55,7 @@ sub post_message {
             username => $slack_a->team_name(),
             text => $text
         );
-        last;
+        $slack_a->last_set_date($ch, $unix_time);
     }
 }
 

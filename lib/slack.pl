@@ -81,11 +81,13 @@ sub last_set_date {
 }
 sub DESTROY {
     my $self = shift;
-    open (my $wr,">:utf8", "status/status.txt") or die $!;
-    for (keys %{$self->{status}}){
-        say $wr "$_:" . $self->{status}->{$_};
+    if (defined($self->{status})){
+        open (my $wr,">:utf8", "status/status.txt") or die $!;
+        for (keys %{$self->{status}}){
+            say $wr "$_:" . $self->{status}->{$_};
+        }
+        close $wr;
     }
-    close $wr;
 }
 # }}}
 # user {{{
