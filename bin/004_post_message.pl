@@ -51,7 +51,7 @@ sub post_message {
         $text .= "\n```";
         $slack_b->post_ch(
             ch => $ENV{SLACK_B},
-            username => "bt_bps",
+            username => $slack_a->team_name(),
             text => $text
         );
         last;

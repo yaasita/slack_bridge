@@ -1,9 +1,12 @@
 #!/usr/bin/perl
 # vim: set fdm=marker:
+package Slack;
 use strict;
 use warnings;
 use feature qw(say);
-package Slack;
+use JSON qw/decode_json/;
+use Encode;
+use utf8;
 
 sub new{
     my $class = shift;
@@ -51,9 +54,12 @@ sub _create_status_list {
     }
     if ( -r "status/status.txt" ){
         open (my $in,"<", "status/status.txt") or die $!;
+        while (<$in>){
+            chomp;
+            my ($n, $t) = split(/\:/);
+            $self->{status}->{$n} = $t;
+        }
         close $in;
-    }
-    else {
     }
 }
 sub last_get_date {
@@ -63,6 +69,23 @@ sub last_get_date {
         _create_status_list($self);
     }
     return $self->{status}->{$ch};
+}
+sub last_set_date {
+    my $self = shift;
+    my $ch = shift;
+    my $time = shift;
+    if (!defined($self->{status})){
+        _create_status_list($self);
+    }
+    $self->{status}->{$ch} = $time;
+}
+sub DESTROY {
+    my $self = shift;
+    open (my $wr,">:utf8", "status/status.txt") or die $!;
+    for (keys %{$self->{status}}){
+        say $wr "$_:" . $self->{status}->{$_};
+    }
+    close $wr;
 }
 # }}}
 # user {{{
@@ -91,14 +114,24 @@ sub post_ch {
     my $self = shift;
     my %param = @_;
     #say ch_name_to_id($self,$param{ch});
-    my $str = $param{text};
+    my $str = encode("UTF-8",$param{text});
     $str =~ s/([^ 0-9a-zA-Z])/"%".uc(unpack("H2",$1))/eg;
     $str =~ s/ /+/g;
     my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
     my $ch = ch_name_to_id($self,$param{ch});
     my $user = $param{username};
-    system ("curl -s 'https://slack.com/api/chat.postMessage?token=$token\&channel=$ch\&text=$str\&username=$user'");
-
+    system ("echo curl -s 'https://slack.com/api/chat.postMessage?token=$token\&channel=$ch\&text=$str\&username=$user'");
+}
+# }}}
+# team {{{
+sub team_name {
+    my $self = shift;
+    if (!defined($self->{domain})){
+        my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
+        my $json = decode_json(`curl -s 'https://slack.com/api/team.info?token=$token'`);
+        $self->{domain} = $json->{team}->{name};
+    }
+    return $self->{domain};
 }
 # }}}
 
