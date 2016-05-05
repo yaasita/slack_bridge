@@ -40,22 +40,33 @@ sub post_message {
         }
     }
     for(sort {$a->{ts} <=> $b->{ts}} @{$json->{messages}}){
-        my $message = $_->{text};
-        my $t = localtime($_->{ts});
-        my $unix_time = $_->{ts};
-
-        my $text="";
-        $text .= $slack_a->id_to_user_name($_->{user}) . '@' . $ch . " (" . $t->strftime("%Y/%m/%d %H:%M:%S") . ") \n";
-        $text .= "```\n";
-        $text .= $message;
-        $text =~ s/<\@([A-Z0-9]+)>/'"@" . $slack_a->id_to_user_name("' . $1 . '")'/eeg;
-        $text .= "\n```";
-        $slack_b->post_ch(
-            ch => $ENV{SLACK_B},
-            username => $slack_a->team_name(),
-            text => $text
-        );
-        $slack_a->last_set_date($ch, $unix_time);
+        my $json = $_;
+        # ファイルアップロード
+        if ( defined($json->{subtype}) and $json->{subtype} eq "file_share" ){
+            my $download_url = $json->{file}->{permalink};
+            say $download_url;
+            next;
+        }
+        else {
+            next;
+        }
+        {
+            # メッセージ出力
+            my $text="";
+            my $t = localtime($json->{ts});
+            my $message = $json->{text};
+            $text .= $slack_a->id_to_user_name($_->{user}) . '@' . $ch . " (" . $t->strftime("%Y/%m/%d %H:%M:%S") . ") \n";
+            $text .= "```\n";
+            $text .= $message;
+            $text =~ s/<\@([A-Z0-9]+)>/'"@" . $slack_a->id_to_user_name("' . $1 . '")'/eeg;
+            $text .= "\n```";
+            $slack_b->post_ch(
+                ch => $ENV{SLACK_B},
+                username => $slack_a->team_name(),
+                text => $text
+            );
+        }
+        $slack_a->last_set_date($ch, $json->{ts});
     }
 }
 
