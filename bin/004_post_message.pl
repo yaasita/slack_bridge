@@ -43,12 +43,20 @@ sub post_message {
         my $json = $_;
         # ファイルアップロード
         if ( defined($json->{subtype}) and $json->{subtype} eq "file_share" ){
-            my $download_url = $json->{file}->{permalink};
-            say $download_url;
-            next;
-        }
-        else {
-            next;
+            my $download_url = $json->{file}->{url_private_download};
+            my $file_name = $json->{file}->{title};
+            if (! -d "tmp/files" ){
+                mkdir "tmp/files" or die $!;
+            }
+            system (
+                "echo curl -G -L " .
+                "-H 'Authorization: Bearer $ENV{SLACK_A_API_TOKEN}' " .
+                "'$download_url' > 'tmp/files/$file_name'"  
+            ) and die $!;
+            $slack_b->upload_file(
+                ch => $ENV{SLACK_B},
+                file => "tmp/files/$file_name"
+            );
         }
         {
             # メッセージ出力

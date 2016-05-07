@@ -26,10 +26,10 @@ subtest 'set_date' => sub { #{{{
     chomp $line;
     is ($line, "general:1461569774.00001");
     close $in;
-
 }; #}}}
 subtest 'get_date' => sub { #{{{
     my $slack = Slack->new("a");
     is ($slack->last_get_date("general"), 1461569774.00001);
 }; #}}}
 done_testing();
+

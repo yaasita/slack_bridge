@@ -2,7 +2,7 @@
 set -e
 
 # clear
-rm -f tmp/*
+rm -rf tmp/*
 
 # A Side
 curl -s "https://slack.com/api/channels.list?token=${SLACK_A_API_TOKEN}&pretty=1" \

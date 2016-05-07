@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use feature qw(say);
 use JSON qw/decode_json/;
+use File::Basename qw/basename dirname/;
 use Encode;
 use utf8;
 
@@ -117,12 +118,32 @@ sub post_ch {
     my %param = @_;
     #say ch_name_to_id($self,$param{ch});
     my $str = encode("UTF-8",$param{text});
-    $str =~ s/([^ 0-9a-zA-Z])/"%".uc(unpack("H2",$1))/eg;
-    $str =~ s/ /+/g;
     my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
     my $ch = ch_name_to_id($self,$param{ch});
     my $user = $param{username};
-    system ("echo curl -s 'https://slack.com/api/chat.postMessage?token=$token\&channel=$ch\&text=$str\&username=$user'");
+    system (
+        "curl -s "                            . 
+        "--data-urlencode 'token=$token' "    .
+        "--data-urlencode '$str' "            .
+        "--data-urlencode 'channel=$ch' "     .
+        "--data-urlencode 'text=$str' "       .
+        "--data-urlencode 'username=$user' "  .
+        "'https://slack.com/api/chat.postMessage'"
+    ) and die $!;
+}
+sub upload_file {
+    my $self = shift;
+    my %param = @_;
+    my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
+    my $file_name = basename($param{file});
+    system (
+    "curl -F 'file=\@$param{file}' "       . 
+    "-F 'channels=#$param{ch}' "           .
+    "-F 'filename=$file_name' "            .
+    "-F 'title=$file_name' "               .
+    "-F 'token=$token' "                   .
+    "'https://slack.com/api/files.upload'"
+    ) and die $!;
 }
 # }}}
 # team {{{
