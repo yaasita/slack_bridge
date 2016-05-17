@@ -49,7 +49,7 @@ sub post_message {
                 mkdir "tmp/files" or die $!;
             }
             system (
-                "echo curl -G -L " .
+                "curl -G -L " .
                 "-H 'Authorization: Bearer $ENV{SLACK_A_API_TOKEN}' " .
                 "'$download_url' > 'tmp/files/$file_name'"  
             ) and die $!;
@@ -74,6 +74,7 @@ sub post_message {
                 text => $text
             );
         }
+        sleep 5;
         $slack_a->last_set_date($ch, $json->{ts});
     }
 }
