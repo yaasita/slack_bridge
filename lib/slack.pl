@@ -118,6 +118,9 @@ sub post_ch {
     my %param = @_;
     #say ch_name_to_id($self,$param{ch});
     my $str = encode("UTF-8",$param{text});
+    # ヤバい文字消す
+    $str =~ s/'//mg;
+    $str =~ s/[\x00-\x08\x0b-\x0c\x0e-\x1f]//mg;
     my $token = $ENV{"SLACK_" . uc($self->{side}) . "_API_TOKEN"};
     my $ch = ch_name_to_id($self,$param{ch});
     my $user = $param{username};
