@@ -42,7 +42,7 @@ sub post_message {
     for(sort {$a->{ts} <=> $b->{ts}} @{$json->{messages}}){
         my $json = $_;
         # ファイルアップロード
-        if ( defined($json->{subtype}) and $json->{subtype} eq "file_share" ){
+        if ( defined($json->{subtype}) and $json->{subtype} eq "file_share" and $json->{file}->{url_private_download} ne ""){
             my $download_url = $json->{file}->{url_private_download};
             my $file_name = $json->{file}->{title};
             if (! -d "tmp/files" ){
